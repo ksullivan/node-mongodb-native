@@ -46,6 +46,14 @@ describe('driver utils', function () {
       ).to.throw(/something wicked/);
       done();
     });
+    it('should not call the final callback more than once when there are multiple errors', function (done) {
+      // This test will fail if done is called more than once.
+      eachAsync(
+        [{}, {}],
+        (item, cb) => cb(new Error('error')),
+        () => done()
+      );
+    });
   });
 
   describe('class BufferPool', function () {

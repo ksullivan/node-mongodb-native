@@ -458,6 +458,16 @@ export function eachAsync<T = Document>(
 ): void {
   arr = arr || [];
 
+  const errors: AnyError[] = [];
+
+  function callCallback() {
+    if (errors.length) {
+      callback(errors[0]);
+    } else {
+      callback();
+    }
+  }
+
   let idx = 0;
   let awaiting = 0;
   for (idx = 0; idx < arr.length; ++idx) {
@@ -466,19 +476,18 @@ export function eachAsync<T = Document>(
   }
 
   if (awaiting === 0) {
-    callback();
+    callCallback();
     return;
   }
 
   function eachCallback(err?: AnyError) {
     awaiting--;
     if (err) {
-      callback(err);
-      return;
+      errors.push(err);
     }
 
     if (idx === arr.length && awaiting <= 0) {
-      callback();
+      callCallback();
     }
   }
 }
